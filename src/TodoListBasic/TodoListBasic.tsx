@@ -42,9 +42,9 @@ const TodoListBasic = () => {
         <div>
             <input type={"text"} value={task} onChange={handleChangeTask}/>
             <select value={taskType} onChange={handleChangeTaskType}>
-                <option>To do</option>
-                <option>In Progress</option>
-                <option>Done</option>
+                {taskTypeList.map((taskType) =>
+                    <option key={taskType}>{taskType}</option>
+                )}
             </select>
             <button onClick={addToList}>Add to list</button>
         </div>
