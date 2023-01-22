@@ -1,18 +1,21 @@
 import React, {useState} from 'react';
 
+interface List {
+    typeList : string;
+    nameList : string;
+}
+
 const TodoListBasic = () => {
-    const [toDoList, setToDoList] = useState<string[]>(['To do']);
-    const [inProgressList, setInProgressList] = useState<string[]>(['In progress']);
-    const [doneList, setDoneList] = useState<string[]>(['Done']);
 
-    const [task, setTask] = useState<string>('');
-    const [taskType, setTaskType] = useState<string>('');
+    const [taskList, setTaskList] = useState<List[]>([{typeList : 'init', nameList : ''}]);
 
-    const taskTypeList = ['To do', 'In Progress', 'Done'];
+    const [taskName, setTaskName] = useState<string>('');
+    const [taskType, setTaskType] = useState<string>('To do');
+
+    const taskTypeList = ['To do', 'In progress', 'Done'];
 
     function handleChangeTask(e: React.ChangeEvent<HTMLInputElement>){
-        setTask(e.target.value);
-        console.log(task)
+        setTaskName(e.target.value);
     }
 
     function handleChangeTaskType(e: React.ChangeEvent<HTMLSelectElement>){
@@ -20,19 +23,22 @@ const TodoListBasic = () => {
     }
 
     function addToList() {
-        if(taskType == 'To do') {
-            const newList = toDoList.concat(task);
-            setToDoList(newList);
+
+        if(taskName !== '') {
+
+            const taskExists = taskList.some(task => task.nameList === taskName);
+
+            if(!taskExists) {
+                const NewList = taskList.concat({typeList: taskType, nameList: taskName})
+                setTaskList(NewList);
+                console.log(taskList)
+            }
+            else{
+                alert('La tâche '+ taskName +' existe déjà !')
+            }
+
+            setTaskName('')
         }
-        else if(taskType == 'In Progress') {
-            const newList = inProgressList.concat(task);
-            setInProgressList(newList);
-        }
-        else {
-            const newList = doneList.concat(task);
-            setDoneList(newList);
-        }
-        setTask('')
     }
 
 
@@ -40,37 +46,50 @@ const TodoListBasic = () => {
 
     return (<>
         <div>
-            <input type={"text"} value={task} onChange={handleChangeTask}/>
-            <select value={taskType} onChange={handleChangeTaskType}>
+            <input type={"text"} value={taskName} onChange={handleChangeTask} style={{margin : '10px'}}/>
+            <select value={taskType} onChange={handleChangeTaskType} style={{margin : '10px'}}>
                 {taskTypeList.map((taskType) =>
                     <option key={taskType}>{taskType}</option>
                 )}
             </select>
-            <button onClick={addToList}>Add to list</button>
+            <button onClick={addToList} style={{margin : '10px'}}>Add to list</button>
         </div>
         <div>
             <table>
-                <td style={{padding : '10px'}}>
-                    <ul>
-                        {toDoList.map((toDo) =>
-                            <li key={toDo}>{toDo}</li>
-                        )}
-                    </ul>
-                </td>
-                <td style={{padding : '10px'}}>
-                    <ul>
-                        {inProgressList.map((inProgress) =>
-                            <li key={inProgress}>{inProgress}</li>
-                        )}
-                    </ul>
-                </td>
-                <td style={{padding : '10px'}}>
-                    <ul>
-                        {doneList.map((done) =>
-                            <li key={done}>{done}</li>
-                        )}
-                    </ul>
-                </td>
+                <tbody>
+                    <tr>
+                        <td style={{padding : '10px'}}>
+                            <span>To do</span>
+                            <ul>
+                                {taskList.map((value ) => {
+                                    if(value.typeList === 'To do') {
+                                        return <li key={value.nameList}>{value.nameList}</li>
+                                    }
+                                })}
+                            </ul>
+                        </td>
+                        <td style={{padding : '10px'}}>
+                            <span>In progress</span>
+                            <ul>
+                                {taskList.map((value ) => {
+                                    if(value.typeList === 'In progress') {
+                                        return <li>{value.nameList}</li>
+                                    }
+                                })}
+                            </ul>
+                        </td>
+                        <td style={{padding : '10px'}}>
+                            <span>Done</span>
+                            <ul>
+                                {taskList.map((value ) => {
+                                    if(value.typeList === 'Done') {
+                                        return <li>{value.nameList}</li>
+                                    }
+                                })}
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </>)
