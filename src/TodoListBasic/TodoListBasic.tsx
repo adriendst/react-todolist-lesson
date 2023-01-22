@@ -31,7 +31,6 @@ const TodoListBasic = () => {
             if(!taskExists) {
                 const NewList = taskList.concat({typeList: taskType, nameList: taskName})
                 setTaskList(NewList);
-                console.log(taskList)
             }
             else{
                 alert('La tâche '+ taskName +' existe déjà !')
@@ -73,7 +72,7 @@ const TodoListBasic = () => {
                             <ul>
                                 {taskList.map((value ) => {
                                     if(value.typeList === 'In progress') {
-                                        return <li>{value.nameList}</li>
+                                        return <li key={value.nameList}>{value.nameList}</li>
                                     }
                                 })}
                             </ul>
@@ -83,7 +82,7 @@ const TodoListBasic = () => {
                             <ul>
                                 {taskList.map((value ) => {
                                     if(value.typeList === 'Done') {
-                                        return <li>{value.nameList}</li>
+                                        return <li key={value.nameList}>{value.nameList}</li>
                                     }
                                 })}
                             </ul>
