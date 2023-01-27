@@ -1,29 +1,33 @@
 import React, {useState} from 'react';
-import Task from './Task';
-import { Input, Select, Button } from 'antd';
+import {Input, Select, Button, Empty, List} from 'antd';
+import {ListTask} from "./List";
+import TaskWithDesign from "./TaskWithDesign";
 
-interface List {
-    typeList: string;
-    nameList: string;
-    modif: string;
-}
 
 const TodoListWithDesign = () => {
 
 
-    const [taskList, setTaskList] = useState<List[]>([{typeList: 'init', nameList: '', modif: 'none'}]);
+    const {Option} = Select;
+
+
+    const [taskList, setTaskList] = useState<ListTask[]>([]);
 
     const [taskName, setTaskName] = useState<string>('');
-    const [taskType, setTaskType] = useState<string>('To do');
+    const [taskType, setTaskType] = useState<string>('');
 
-    const [taskTypeList, setTaskTypeList] = useState<string>('To do');
+    const [taskTypeList, setTaskTypeList] = useState<Array<string>>([]);
+    const [taskTypeName, setTaskTypeName] = useState<string>('');
 
     function handleChangeTask(e: React.ChangeEvent<HTMLInputElement>) {
         setTaskName(e.target.value);
     }
 
-    function handleChangeTaskType(e: React.ChangeEvent<HTMLSelectElement>) {
-        setTaskType(e.target.value);
+    function handleChangeTaskTypeName(e: React.ChangeEvent<HTMLInputElement>) {
+        setTaskTypeName(e.target.value);
+    }
+
+    function handleChangeTaskType(value: string) {
+        setTaskType(value);
     }
 
 
@@ -42,8 +46,22 @@ const TodoListWithDesign = () => {
         }
     }
 
-    const removeFromList = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const value = e.currentTarget.getAttribute("data-value");
+    function addToTaskTypeList() {
+
+        if (taskTypeName !== '') {
+            const taskExists = taskTypeList.some(task => task === taskTypeName);
+
+            if (!taskExists) {
+                const newList = taskTypeList.concat(taskTypeName)
+                setTaskTypeList(newList);
+            } else {
+                alert('Le type de tâche ' + taskTypeName + ' existe déjà !')
+            }
+            setTaskTypeName('')
+        }
+    }
+
+    function removeFromList(value: string) {
         const myArray = taskList.filter(function (obj) {
             return obj.nameList !== value;
         });
@@ -62,8 +80,7 @@ const TodoListWithDesign = () => {
         }
     };
 
-    function modif(e: React.MouseEvent<HTMLButtonElement>) {
-        const value = e.currentTarget.getAttribute("data-value");
+    function modif(value: string) {
         const newArr = [...taskList];
         const toModif = taskList.find((element) => element.nameList === value);
         const indexOf = taskList.findIndex((element) => element.nameList === value);
@@ -78,60 +95,69 @@ const TodoListWithDesign = () => {
     }
 
 
-    function changeTaskName(e: React.MouseEvent<HTMLButtonElement>) {
-        if (e.currentTarget.previousElementSibling) {
-            const value = e.currentTarget.getAttribute('value');
-            const newvalue = e.currentTarget.previousElementSibling.getAttribute('value');
-            const type = e.currentTarget.getAttribute('data-value');
-            const newArr = [...taskList];
-            const indexOf = taskList.findIndex((element) => element.nameList === value);
-            if (typeof type == 'string' && typeof newvalue == 'string') {
-                newArr[indexOf] = {typeList: type, nameList: newvalue, modif: 'none'}
-                setTaskList(newArr)
+    function changeTaskName(value : string, type : string, newvalue:string) {
+        if (newvalue !== '') {
+            const taskExists = taskList.some(task => task.nameList === newvalue);
+
+            if (!taskExists) {
+                const newArr = [...taskList];
+                const indexOf = taskList.findIndex((element) => element.nameList === value);
+                if (typeof type == 'string' && typeof newvalue == 'string') {
+                    newArr[indexOf] = {typeList: type, nameList: newvalue, modif: 'none'}
+                    setTaskList(newArr)
+                }
+            } else {
+                alert('La tâche ' + newvalue + ' existe déjà !')
             }
         }
-
     }
 
 
     return (<>
-        <div>
-            <Input placeholder='Column name'></Input>
+        <div style={{display: 'flex'}}>
+            <Input placeholder='Column name' type={'text'} value={taskTypeName} onChange={handleChangeTaskTypeName}
+                   style={{order: 1, margin: '10px'}}></Input>
+            <Button onClick={addToTaskTypeList} style={{order: 2, margin: '10px'}} disabled={!taskTypeName}>Add to
+                list</Button>
         </div>
-        <div>
-            <Input placeholder='Nouvelle tâche' type={"text"} value={taskName} onChange={handleChangeTask} style={{width : 'calc(100% - 350px)', margin : '10px'}}/>
-            <Select onChange={handleChangeTaskType} style={{margin: '10px'}}>
+        <div style={{display: 'flex'}}>
+            <Input placeholder='Nouvelle tâche' type={"text"} value={taskName} onChange={handleChangeTask}
+                   style={{order: 1, margin: '10px'}}/>
+            <Select value={taskType} onChange={handleChangeTaskType} style={{order: 2, margin: '10px', width: '120px'}}>
                 {taskTypeList.map((taskType) =>
-                    <option key={taskType}>{taskType}</option>
+                    <Option key={taskType}>{taskType}</Option>
                 )}
             </Select>
-            <Button onClick={addToList} style={{margin: '10px'}}>Add to list</Button>
+            <Button onClick={addToList} style={{order: 3, margin: '10px'}} disabled={!taskName || !taskType}>Add to
+                list</Button>
         </div>
         <div>
-            <table>
-                <tbody>
-                    <tr>
-                        {taskTypeList.map((typevalue) => {
-                            return <>
-                                <td style={{padding: '10px'}}>
-                                    <span>{typevalue}</span>
-                                    <ul>
-                                        {taskList.map((value) => {
-                                            if (value.typeList === typevalue) {
-                                                return <div>
-                                                    <Task task={value} removeFromList={removeFromList} moveTask={move}
-                                                          modifTask={modif} changeTask={changeTaskName}/>
-                                                </div>
-                                            }
-                                        })}
-                                    </ul>
-                                </td>
-                            </>
-                        })}
-                    </tr>
-                </tbody>
-            </table>
+            {taskTypeList.map((value) => {
+                if (taskList.some(element => element.typeList === value)) {
+                    return <List
+                        header={<div>{value}</div>}
+                    >
+                        {taskList.map((task) => {
+                            if (task.typeList == value) {
+                                return <TaskWithDesign value={value} task={task}
+                                                       removeFromList={removeFromList} modifList={modif}
+                                                       modifTaskName={changeTaskName}/>
+                            }
+                        })
+                        }
+                    </List>
+                } else {
+                    return <List
+                        header={<div>{value}</div>}
+                    >
+                        <Empty/>
+                    </List>
+                }
+
+            })}
+
         </div>
+
     </>)
 };
 
