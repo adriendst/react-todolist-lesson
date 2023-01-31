@@ -95,19 +95,34 @@ const TodoListWithDesign = () => {
     }
 
 
-    function changeTaskName(value : string, type : string, newvalue:string) {
+    function changeTask(value : string, type : string, newtype : string, newvalue:string) {
         if (newvalue !== '') {
             const taskExists = taskList.some(task => task.nameList === newvalue);
-
-            if (!taskExists) {
-                const newArr = [...taskList];
-                const indexOf = taskList.findIndex((element) => element.nameList === value);
-                if (typeof type == 'string' && typeof newvalue == 'string') {
+            const newArr = [...taskList];
+            const indexOf = taskList.findIndex((element) => element.nameList === value);
+            if(type !== newtype){
+                if(value!==newvalue){
+                    if (!taskExists) {
+                        newArr[indexOf] = {typeList: newtype, nameList: newvalue, modif: 'none'}
+                        setTaskList(newArr)
+                    }
+                    else{
+                        alert('La tâche ' + newvalue + ' existe déjà !')
+                    }
+                }
+                else{
+                    newArr[indexOf] = {typeList: newtype, nameList: value, modif: 'none'}
+                    setTaskList(newArr)
+                }
+            }
+            else{
+                if (!taskExists) {
                     newArr[indexOf] = {typeList: type, nameList: newvalue, modif: 'none'}
                     setTaskList(newArr)
                 }
-            } else {
-                alert('La tâche ' + newvalue + ' existe déjà !')
+                else{
+                    alert('La tâche ' + newvalue + ' existe déjà !')
+                }
             }
         }
     }
@@ -141,7 +156,7 @@ const TodoListWithDesign = () => {
                             if (task.typeList == value) {
                                 return <TaskWithDesign value={value} task={task}
                                                        removeFromList={removeFromList} modifList={modif}
-                                                       modifTaskName={changeTaskName}/>
+                                                       modifTask={changeTask} taskTypeList={taskTypeList}/>
                             }
                         })
                         }
