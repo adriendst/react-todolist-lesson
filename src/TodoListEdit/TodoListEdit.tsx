@@ -3,6 +3,7 @@ import {ListTask} from "./List";
 import AddColumn from "./AddColumn";
 import AddItem from "./AddItem/AddItem";
 import Column from "./Column";
+import {DragDropContext, DropResult} from "react-beautiful-dnd";
 
 
 const TodoListEdit = () => {
@@ -40,12 +41,12 @@ const TodoListEdit = () => {
     }
 
     function addToList(taskName: string, taskType: string) {
-
+        const randomId = () => (Math.random() + 1).toString(36).substring(7);
         if (taskName !== '') {
             const taskExists = taskList.some(task => task.nameList === taskName);
 
             if (!taskExists) {
-                const newList = taskList.concat({typeList: taskType, nameList: taskName, modif: 'none'})
+                const newList = taskList.concat({typeList: taskType, nameList: taskName, id: randomId()})
                 setTaskList(newList);
             } else {
                 alert('La tâche ' + taskName + ' existe déjà !')
@@ -107,7 +108,7 @@ const TodoListEdit = () => {
         }
     }
 
-    function changeTask(value: string, type: string, newtype: string, newvalue: string) {
+    function changeTask(value: string, type: string, newtype: string, newvalue: string, id: string) {
         if (newvalue !== '') {
             const taskExists = taskList.some(task => task.nameList === newvalue);
             const newArr = [...taskList];
@@ -115,18 +116,18 @@ const TodoListEdit = () => {
             if (type !== newtype) {
                 if (value !== newvalue) {
                     if (!taskExists) {
-                        newArr[indexOf] = {typeList: newtype, nameList: newvalue, modif: 'none'}
+                        newArr[indexOf] = {typeList: newtype, nameList: newvalue, id: id}
                         setTaskList(newArr)
                     } else {
                         alert('La tâche ' + newvalue + ' existe déjà !')
                     }
                 } else {
-                    newArr[indexOf] = {typeList: newtype, nameList: value, modif: 'none'}
+                    newArr[indexOf] = {typeList: newtype, nameList: value, id: id}
                     setTaskList(newArr)
                 }
             } else {
                 if (!taskExists) {
-                    newArr[indexOf] = {typeList: type, nameList: newvalue, modif: 'none'}
+                    newArr[indexOf] = {typeList: type, nameList: newvalue, id: id}
                     setTaskList(newArr)
                 } else {
                     alert('La tâche ' + newvalue + ' existe déjà !')
@@ -135,14 +136,36 @@ const TodoListEdit = () => {
         }
     }
 
+    function onDragEnd(result: DropResult) {
+        const {destination, draggableId} = result;
+
+        if (!destination) {
+            return;
+        }
+
+        const newArr = [...taskList];
+        const indexOf = taskList.findIndex((element) => element.id === draggableId);
+        newArr[indexOf] = {
+            typeList: destination.droppableId,
+            nameList: newArr[indexOf].nameList,
+            id: newArr[indexOf].id
+        }
+        setTaskList(newArr)
+
+        return;
+    }
+
     return (<>
         <AddColumn handleChangeTaskTypeName={handleChangeTaskTypeName} newColumn={newColumn}
                    taskTypeName={taskTypeName}></AddColumn>
         <AddItem taskTypeList={taskTypeList} handleChangeTask={handleChangeTask}
                  handleChangeTaskType={handleChangeTaskType} newItem={newItem} taskName={taskName}
                  taskType={taskType}></AddItem>
-        <Column taskTypeList={taskTypeList} taskList={taskList} removeFromList={removeFromList} removeType={removeType}
-                changeTask={changeTask} changeTaskTypeName={changeTaskTypeName}></Column>
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Column taskTypeList={taskTypeList} taskList={taskList} removeFromList={removeFromList}
+                    removeType={removeType}
+                    changeTask={changeTask} changeTaskTypeName={changeTaskTypeName}></Column>
+        </DragDropContext>
     </>)
 };
 

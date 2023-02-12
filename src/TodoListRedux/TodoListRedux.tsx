@@ -3,6 +3,7 @@ import {ListTask} from "./List";
 import AddColumn from "./AddColumn";
 import AddItem from "./AddItem/AddItem";
 import Column from "./Column";
+import {DragDropContext, DropResult} from "react-beautiful-dnd";
 
 const TodoListRedux = () => {
 
@@ -14,7 +15,6 @@ const TodoListRedux = () => {
 
     const [taskName, setTaskName] = useState<string>('');
     const [taskType, setTaskType] = useState<string>('');
-    var id = 0;
 
     function handleChangeTask(e: React.ChangeEvent<HTMLInputElement>) {
         setTaskName(e.target.value);
@@ -45,10 +45,8 @@ const TodoListRedux = () => {
             const taskExists = taskList.some(task => task.nameList === taskName);
 
             if (!taskExists) {
-                const newList = taskList.concat({typeList: taskType, nameList: taskName, id : randomId()})
+                const newList = taskList.concat({typeList: taskType, nameList: taskName, id: randomId()})
                 setTaskList(newList);
-                id++;
-                console.log(id)
             } else {
                 alert('La tâche ' + taskName + ' existe déjà !')
             }
@@ -109,7 +107,7 @@ const TodoListRedux = () => {
         }
     }
 
-    function changeTask(value: string, type: string, newtype: string, newvalue: string, id : string) {
+    function changeTask(value: string, type: string, newtype: string, newvalue: string, id: string) {
         if (newvalue !== '') {
             const taskExists = taskList.some(task => task.nameList === newvalue);
             const newArr = [...taskList];
@@ -123,7 +121,7 @@ const TodoListRedux = () => {
                         alert('La tâche ' + newvalue + ' existe déjà !')
                     }
                 } else {
-                    newArr[indexOf] = {typeList: newtype, nameList: value, id : id}
+                    newArr[indexOf] = {typeList: newtype, nameList: value, id: id}
                     setTaskList(newArr)
                 }
             } else {
@@ -137,14 +135,36 @@ const TodoListRedux = () => {
         }
     }
 
+    function onDragEnd(result: DropResult) {
+        const {destination, draggableId} = result;
+
+        if (!destination) {
+            return;
+        }
+
+        const newArr = [...taskList];
+        const indexOf = taskList.findIndex((element) => element.id === draggableId);
+        newArr[indexOf] = {
+            typeList: destination.droppableId,
+            nameList: newArr[indexOf].nameList,
+            id: newArr[indexOf].id
+        }
+        setTaskList(newArr)
+
+        return;
+    }
+
     return (<>
         <AddColumn handleChangeTaskTypeName={handleChangeTaskTypeName} newColumn={newColumn}
                    taskTypeName={taskTypeName}></AddColumn>
         <AddItem taskTypeList={taskTypeList} handleChangeTask={handleChangeTask}
                  handleChangeTaskType={handleChangeTaskType} newItem={newItem} taskName={taskName}
                  taskType={taskType}></AddItem>
-        <Column taskTypeList={taskTypeList} taskList={taskList} removeFromList={removeFromList} removeType={removeType}
-                changeTask={changeTask} changeTaskTypeName={changeTaskTypeName}></Column>
+        <DragDropContext onDragEnd={onDragEnd}>
+            <Column taskTypeList={taskTypeList} taskList={taskList} removeFromList={removeFromList}
+                    removeType={removeType}
+                    changeTask={changeTask} changeTaskTypeName={changeTaskTypeName}></Column>
+        </DragDropContext>
     </>)
 };
 

@@ -11,7 +11,7 @@ interface ItemModal{
     setIsTaskModalOpen : React.Dispatch<React.SetStateAction<boolean>>,
     isTaskModalOpen : boolean
     task : ListTask,
-    changeTask:(value :string, type: string, newtype : string, newvalue : string) => void
+    changeTask:(value :string, type: string, newtype : string, newvalue : string, id : string) => void
 }
 
 function ItemModal({taskTypeList, setNewTaskType, setNewTaskName, newTaskType, newTaskName, setIsTaskModalOpen, changeTask,isTaskModalOpen, task} : ItemModal) {
@@ -27,7 +27,7 @@ function ItemModal({taskTypeList, setNewTaskType, setNewTaskName, newTaskType, n
 
     function handleTaskModalOk(){
         setIsTaskModalOpen(false);
-        changeTask(task.nameList, task.typeList, newTaskType, newTaskName)
+        changeTask(task.nameList, task.typeList, newTaskType, newTaskName, task.id)
     }
 
     function handleTaskModalCancel(){
