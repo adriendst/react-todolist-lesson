@@ -15,28 +15,28 @@ interface Column{
 
 function Column({taskTypeList, taskList, removeFromList, removeType, changeTask, changeTaskTypeName} : Column) {
     return(
-    <div>
-        {taskTypeList.map((value) => {
-            if (taskList.some(element => element.typeList === value)) {
-                return <List
-                    header={<Header typeList={value} removeType={removeType} changeTaskTypeName={changeTaskTypeName}/>}
-                >
-                    {taskList.map((task) => {
-                        if (task.typeList == value) {
-                            return <Item task={task} removeFromList={removeFromList} changeTask={changeTask} taskTypeList={taskTypeList}/>
+        <div>
+            {taskTypeList.map((value) => {
+                if (taskList.some(element => element.typeList === value)) {
+                    return <List
+                        header={<Header typeList={value} removeType={removeType} changeTaskTypeName={changeTaskTypeName}/>}
+                    >
+                        {taskList.map((task) => {
+                            if (task.typeList == value) {
+                                return <Item task={task} removeFromList={removeFromList} changeTask={changeTask} taskTypeList={taskTypeList}/>
+                            }
+                        })
                         }
-                    })
-                    }
-                </List>
-            } else {
-                return <List
-                    header={<Header typeList={value} removeType={removeType} changeTaskTypeName={changeTaskTypeName}/>}
-                >
-                    <Empty/>
-                </List>
-            }
-        })}
-    </div>
+                    </List>
+                } else {
+                    return <List
+                        header={<Header typeList={value} removeType={removeType} changeTaskTypeName={changeTaskTypeName}/>}
+                    >
+                        <Empty/>
+                    </List>
+                }
+            })}
+        </div>
     )
 }
 
