@@ -15,7 +15,6 @@ interface ItemInterface {
 }
 
 const Item = ({label, id, onDeleteItem, onEditItem, index}: ItemInterface) => {
-    console.log(label, id)
     return (
         <Draggable draggableId={id} index={index}>
             {provided => (
