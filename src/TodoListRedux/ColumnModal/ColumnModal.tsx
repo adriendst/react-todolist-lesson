@@ -1,37 +1,51 @@
-import React from 'react';
-import {Input, Modal} from "antd";
+import { Input, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Column } from '../TodoListRedux/TodoListRedux';
+import {useSelector} from "react-redux";
+import {State} from "../store";
 
-interface ColumnModal{
-    setNewTaskTypeName : React.Dispatch<React.SetStateAction<string>>
-    changeTaskTypeName : (value : string, newvalue : string) => void,
-    typeList : string,
-    newTaskTypeName : string,
-    setIsTypeModalOpen : React.Dispatch<React.SetStateAction<boolean>>
-    isTypeModalOpen : boolean,
-
+interface ColumnModalInterface {
+    onCloseColumn(): void;
+    onSaveColumn(newColumn: Column): void;
 }
 
-function ColumnModal({setNewTaskTypeName, changeTaskTypeName, typeList, newTaskTypeName, setIsTypeModalOpen, isTypeModalOpen} : ColumnModal) {
+const ColumnModal = ({
+    onCloseColumn,
+    onSaveColumn,
+}: ColumnModalInterface) => {
+    const [newColumnName, setNewColumnName] = useState<string>();
 
-    function handleNewTaskTypeName(e: React.ChangeEvent<HTMLInputElement>) {
-        setNewTaskTypeName(e.target.value)
-    }
+    const column = useSelector((state : State) => state.toDoListRedux.columnModal)
 
-    function handleTypeModalOk() {
-        setIsTypeModalOpen(false);
-        changeTaskTypeName(typeList, newTaskTypeName)
-    }
+    useEffect(() => {
+        setNewColumnName(column?.label);
+    }, [column]);
 
-    function handleTypeModalCancel() {
-        setIsTypeModalOpen(false);
-        setNewTaskTypeName(typeList)
-    }
+    const handleOnSave = () => {
+        if (newColumnName && column) {
+            onSaveColumn({
+                ...column,
+                label: newColumnName,
+            });
+        }
+    };
 
-    return(
-        <Modal title="Column edition" open={isTypeModalOpen} onOk={handleTypeModalOk} onCancel={handleTypeModalCancel} okText="Save">
-            <Input placeholder="Column name" type={"text"} value={newTaskTypeName} onChange={handleNewTaskTypeName}  />
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewColumnName(e.target.value);
+    };
+
+    return (
+        <Modal
+            title="Column edition"
+            open={column !== null}
+            onOk={handleOnSave}
+            okText="Save"
+            onCancel={onCloseColumn}
+            className="todo-list-edit-Column-modal"
+        >
+            <Input value={newColumnName} onChange={handleOnChange} />
         </Modal>
-    )
-}
+    );
+};
 
 export default ColumnModal;

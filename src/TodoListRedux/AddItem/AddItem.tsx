@@ -1,31 +1,55 @@
-import React from 'react';
-import {Button, Select, Input} from "antd";
+import React, { useState } from 'react';
+import { Button, Input, Select } from 'antd';
+import {useDispatch, useSelector} from "react-redux";
+import {State} from "../store";
+import {addItem} from "../Slice/ColumnSlice";
 
-interface Item {
-    taskTypeList: string[],
-    taskName: string,
-    taskType: string,
-    handleChangeTask: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    handleChangeTaskType: (value: string) => void,
-    newItem: () => void,
-}
 
-function AddItem({taskTypeList, handleChangeTaskType, newItem, taskType, taskName, handleChangeTask}: Item) {
-    const {Option} = Select;
+const AddItem = () => {
+    const [newItemName, setNewItemName] = useState<string>('');
+    const [newItemColumn, setNewItemColumn] = useState<string>();
+
+    const dispatch = useDispatch()
+    const columnsName = useSelector((state : State) => state.toDoListRedux.columns.map(column => ({ value: column.value, label: column.label })));
+
+    const handleOnItemNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewItemName(e.target.value);
+    };
+
+    const handleOnCategoryChange = (newValue: string) => {
+        setNewItemColumn(newValue);
+    };
+
+    const handleOnClickNewItem = () => {
+        dispatch(addItem([newItemName, newItemColumn as string]))
+
+        setNewItemName('');
+        setNewItemColumn(undefined);
+    };
 
     return (
-        <div style={{display: 'flex'}}>
-            <Input placeholder='Nouvelle tâche' type={"text"} value={taskName} onChange={handleChangeTask}
-                   style={{order: 1, margin: '10px'}}/>
-            <Select value={taskType} onChange={handleChangeTaskType} style={{order: 2, margin: '10px', width: '350px'}}>
-                {taskTypeList.map((taskType) =>
-                    <Option key={taskType}>{taskType}</Option>
-                )}
-            </Select>
-            <Button onClick={() => newItem()} style={{order: 3, margin: '10px'}} disabled={!taskName || !taskType}>Add
-                item</Button>
+        <div className="todo-list-edit-add-item">
+            <Input
+                placeholder="Item name"
+                onChange={handleOnItemNameChange}
+                value={newItemName}
+            />
+
+            <Select
+                placeholder="Select column"
+                onChange={handleOnCategoryChange}
+                value={newItemColumn}
+                options={columnsName}
+            />
+
+            <Button
+                disabled={!newItemName?.length || !newItemColumn}
+                onClick={handleOnClickNewItem}
+            >
+                Add Item
+            </Button>
         </div>
-    )
-}
+    );
+};
 
 export default AddItem;

@@ -1,22 +1,40 @@
-import React from 'react';
-import {Button, Input} from "antd";
-import addColumn from "./index";
+import { Input, Button } from 'antd';
+import React, { useState } from 'react';
+import {useDispatch} from "react-redux";
+import {addColumn} from "../Slice/ColumnSlice";
 
-interface addColumn {
-    taskTypeName: string,
-    handleChangeTaskTypeName: (e: React.ChangeEvent<HTMLInputElement>) => void,
-    newColumn: () => void
-}
 
-function AddColumn({newColumn, taskTypeName, handleChangeTaskTypeName}: addColumn) {
+const AddColumn = () => {
+    const [newColumnName, setColumnName] = useState<string>('');
+    const dispatch = useDispatch()
+
+    const handleOnColumnNameChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setColumnName(e.target.value);
+    };
+
+    const handleOnClickNewColumn = () => {
+        dispatch(addColumn(newColumnName))
+        setColumnName('');
+    };
+
     return (
-        <div style={{display: 'flex'}}>
-            <Input placeholder='Column name' type={'text'} value={taskTypeName} onChange={handleChangeTaskTypeName}
-                   style={{order: 1, margin: '10px'}}></Input>
-            <Button onClick={() => newColumn()} style={{order: 2, margin: '10px'}} disabled={!taskTypeName}>Add
-                column</Button>
+        <div className="todo-list-edit-add-column">
+            <Input
+                placeholder="Column name"
+                onChange={handleOnColumnNameChange}
+                value={newColumnName}
+            />
+
+            <Button
+                disabled={!newColumnName.length}
+                onClick={handleOnClickNewColumn}
+            >
+                Add column
+            </Button>
         </div>
-    )
-}
+    );
+};
 
 export default AddColumn;

@@ -4,7 +4,7 @@ import Navigation from './Navigation';
 import TodoListBasic from './TodoListBasic';
 import TodoListEdit from './TodoListEdit';
 import TodoListWithDesign from './TodoListWithDesign';
-import TodoListRedux from './TodoListRedux';
+import TodoListRedux from './TodoListRedux/TodoListWrapper';
 
 const App = () => (
     <div className="app">

@@ -1,52 +1,66 @@
-import React from 'react';
-import {Input, Modal, Select} from "antd";
-import {ListTask} from "../List";
+import { Input, Modal, Select } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Column, Item } from '../TodoListRedux/TodoListRedux';
+import {useSelector} from "react-redux";
+import {State} from "../store";
 
-interface ItemModal{
-    taskTypeList : string[],
-    setNewTaskType : React.Dispatch<React.SetStateAction<string>>,
-    setNewTaskName :  React.Dispatch<React.SetStateAction<string>>,
-    newTaskName : string,
-    newTaskType : string,
-    setIsTaskModalOpen : React.Dispatch<React.SetStateAction<boolean>>,
-    isTaskModalOpen : boolean
-    task : ListTask,
-    changeTask:(value :string, type: string, newtype : string, newvalue : string, id : string) => void
+interface ItemModalInterface {
+    columns: Column[];
+    onCloseItem(): void;
+    onSaveItem(newItem: Item): void;
 }
 
-function ItemModal({taskTypeList, setNewTaskType, setNewTaskName, newTaskType, newTaskName, setIsTaskModalOpen, changeTask,isTaskModalOpen, task} : ItemModal) {
-    const {Option} = Select;
+const ItemModal = ({
+    onCloseItem,
+    onSaveItem,
+    columns,
+}: ItemModalInterface) => {
+    const [newItemName, setNewItemName] = useState<string>();
+    const [newItemColumn, setNewItemColumn] = useState<string>();
 
-    function handleNewTaskName(e: React.ChangeEvent<HTMLInputElement>){
-        setNewTaskName(e.target.value)
-    }
+    const item = useSelector((state : State) => state.toDoListRedux.itemModal)
 
-    function handleNewTaskType(value:string){
-        setNewTaskType(value)
-    }
+    useEffect(() => {
+        setNewItemName(item?.label);
+        setNewItemColumn(item?.columnId);
+    }, [item]);
 
-    function handleTaskModalOk(){
-        setIsTaskModalOpen(false);
-        changeTask(task.nameList, task.typeList, newTaskType, newTaskName, task.id)
-    }
+    const handleOnSave = () => {
+        if (newItemName && item && newItemColumn) {
+            onSaveItem({
+                ...item,
+                label: newItemName,
+                columnId: newItemColumn,
+            });
+        }
+    };
 
-    function handleTaskModalCancel(){
-        setIsTaskModalOpen(false);
-        setNewTaskName(task.nameList)
-        setNewTaskType(task.typeList)
-    }
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewItemName(e.target.value);
+    };
 
-    return(
-        <Modal title="Item edition" open={isTaskModalOpen} onOk={handleTaskModalOk} onCancel={handleTaskModalCancel} okText="Save">
-            <Input type={"text"} value={newTaskName} onChange={handleNewTaskName}
-                   style={{marginBottom: '10px'}}/>
-            <Select value={newTaskType} onChange={handleNewTaskType} style={{ width: '100%' }}>
-                {taskTypeList.map((taskType) =>
-                    <Option key={taskType}>{taskType}</Option>
-                )}
-            </Select>
+    const handleOnCategoryChange = (newValue: string) => {
+        setNewItemColumn(newValue);
+    };
+
+    return (
+        <Modal
+            title="Item edition"
+            open={item !== null}
+            onOk={handleOnSave}
+            okText="Save"
+            onCancel={onCloseItem}
+            className="todo-list-edit-item-modal"
+        >
+            <Input value={newItemName} onChange={handleOnChange} />
+            <Select
+                placeholder="Select column"
+                onChange={handleOnCategoryChange}
+                value={newItemColumn}
+                options={columns}
+            />
         </Modal>
-    )
-}
+    );
+};
 
 export default ItemModal;

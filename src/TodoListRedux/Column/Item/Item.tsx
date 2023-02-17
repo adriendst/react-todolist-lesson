@@ -1,47 +1,49 @@
-import React, {useState} from 'react';
-import {Button, List} from "antd";
-import {CloseOutlined, EditOutlined} from "@ant-design/icons";
-import {ListTask} from "../../List";
-import ItemModal from "../../ItemModal";
+import React from 'react';
+import {CloseOutlined, EditOutlined} from '@ant-design/icons';
+import {List, Button} from 'antd';
 import {Draggable} from "react-beautiful-dnd";
 
-interface Item {
-    task: ListTask,
-    removeFromList: (value: string) => void,
-    changeTask: (value: string, type: string, newtype: string, newvalue: string, id: string) => void
-    taskTypeList: string[];
-    index: number;
+interface ItemInterface {
+    label: string;
+    id: string;
+
+    onDeleteItem(): void;
+
+    onEditItem(): void;
+
+    index: number
 }
 
-function Item({task, removeFromList, changeTask, taskTypeList, index}: Item) {
-
-    const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-    const [newTaskName, setNewTaskName] = useState('')
-    const [newTaskType, setNewTaskType] = useState('')
-
-    function showTaskModal() {
-        setNewTaskName(task.nameList);
-        setNewTaskType(task.typeList);
-        setIsTaskModalOpen(true);
-    }
-
+const Item = ({label, id, onDeleteItem, onEditItem, index}: ItemInterface) => {
+    console.log(label, id)
     return (
-        <Draggable draggableId={task.id} index={index}>
-            {(provided) => (
-                <List.Item key={task.nameList} style={{display: 'flex', alignItems: 'center', height: '50px'}} {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
-                    <div style={{flex: 1}}>{task.nameList}</div>
-                    <Button value={task.nameList} type={'primary'}
-                            icon={<EditOutlined/>} onClick={showTaskModal} style={{marginRight: '10px'}}/>
-                    <Button value={task.nameList} type={'primary'} danger
-                            icon={<CloseOutlined/>} onClick={() => removeFromList(task.nameList)}/>
-                    <ItemModal isTaskModalOpen={isTaskModalOpen} taskTypeList={taskTypeList} newTaskType={newTaskType}
-                               newTaskName={newTaskName} setIsTaskModalOpen={setIsTaskModalOpen}
-                               setNewTaskType={setNewTaskType}
-                               changeTask={changeTask} setNewTaskName={setNewTaskName} task={task}></ItemModal>
-                </List.Item>
+        <Draggable draggableId={id} index={index}>
+            {provided => (
+                <div ref={provided.innerRef}
+                     {...provided.draggableProps}
+                     {...provided.dragHandleProps}>
+                    <List.Item className="todo-list-edit-item">
+                        {label}
+                        <div className="todo-list-edit-item-action">
+                            <Button
+                                type="primary"
+                                size="small"
+                                icon={<EditOutlined/>}
+                                onClick={onEditItem}
+                            />
+                            <Button
+                                type="primary"
+                                danger
+                                size="small"
+                                icon={<CloseOutlined/>}
+                                onClick={onDeleteItem}
+                            />
+                        </div>
+                    </List.Item>
+                </div>
             )}
         </Draggable>
-    )
-}
+    );
+};
 
 export default Item;
