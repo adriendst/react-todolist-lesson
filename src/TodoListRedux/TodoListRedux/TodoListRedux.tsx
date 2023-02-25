@@ -96,8 +96,8 @@ const TodoListRedux = () => {
                                 label={label}
                                 onEditItem={handleOnEditItem}
                                 onEditColumn={handleOnEditColumn}
-                                index={index}
-                            />
+                                key={index}
+                                />
                         );
                     })}
 

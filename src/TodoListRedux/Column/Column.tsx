@@ -10,12 +10,8 @@ import {Droppable} from "react-beautiful-dnd";
 interface ColumnInterface {
     value: string;
     label: string;
-
     onEditItem(id: string): void;
-
     onEditColumn(id: string): void;
-
-    index: number
 }
 
 const Column = ({
@@ -31,7 +27,7 @@ const Column = ({
     return (
         <Droppable droppableId={value}>
             {(provided) => (
-                <div ref={provided.innerRef} style={{width: '100%'}}>
+                <div ref={provided.innerRef} style={{width: '100%'}} >
                     <List className="todo-list-edit-column"
                           key={value}
                           header={
